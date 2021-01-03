@@ -32,8 +32,8 @@ class Main:
         self.key_save_timer()
        
         self.keys.append(key)
-        if key == Key.esc:
-            return False
+        # if key == Key.esc:
+        #     return False
         self.count += 1 
         if self.count >= 10: 
             return self.key_state_clean_write()
