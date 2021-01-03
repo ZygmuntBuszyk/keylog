@@ -69,6 +69,10 @@ class Main:
 
     # MAILING LOGIC 
     def send_email(self):
+        #check if file is empty if so dont send
+        if  os.stat(self.fn).st_size == 0:
+            return
+
         message = MIMEMultipart()
 
         message['From'] = 'loggerdatamail@gmail.com'
